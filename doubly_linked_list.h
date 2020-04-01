@@ -1,17 +1,14 @@
-/******************************************************
+/*************************************************************
  * doubly_linked_list
  * @author: Carlos Huerta García
- * @description: Int doubly linked list implementation
- * ***************************************************/
+ * @description: Polynomial doubly linked list implementation
+ * **********************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <limits.h>
-
-typedef int ListEntry;
 
 typedef struct ListElement {
-    ListEntry entry;
+    int coeficient, power;
     struct ListElement* next;
     struct ListElement* prev;
 } ListElement;
@@ -38,15 +35,16 @@ bool isEmpty(List* list){
     return !list->head;
 }
 
-ListElement* createElement(ListEntry item) {
+ListElement* createElement(int coeficient, int power) {
     ListElement* element = (ListElement*)malloc(sizeof(ListElement));
-    element->entry = item;
+    element->coeficient = coeficient;
+    element->power = power;
     element->prev = element->next = NULL;
     return element;
 }
 
-void add(List* list, ListEntry item) {
-    ListElement* element = createElement(item);
+void add(List* list, int coeficient, int power) {
+    ListElement* element = createElement(coeficient, power);
     element->next = list->head;
     if(!isEmpty(list))
         list->head->prev = element;
@@ -54,8 +52,8 @@ void add(List* list, ListEntry item) {
     ++list->size;
 }
 
-void append(List* list, ListEntry item) {
-    ListElement* element = createElement(item), *last = list->head;
+void append(List* list, int coeficient, int power) {
+    ListElement* element = createElement(coeficient, power), *last = list->head;
     if(isEmpty(list)){
         element->prev = NULL;
         list->head = element;
@@ -68,12 +66,12 @@ void append(List* list, ListEntry item) {
     ++list->size;
 }
 
-void insertAfter(List* list, ListElement* prev, ListEntry item) {
+void insertAfter(List* list, ListElement* prev, int coeficient, int power) {
     if(!prev || isEmpty(list)){
         puts("No existe el elemento previo");
         return;
     }
-    ListElement* element = createElement(item);
+    ListElement* element = createElement(coeficient, power);
     element->next = prev->next;
     prev->next = element;
     element->prev = prev;
@@ -82,12 +80,12 @@ void insertAfter(List* list, ListElement* prev, ListEntry item) {
     ++list->size;
 }
 
-void insertBefore(List* list, ListElement* next, ListEntry item) {
+void insertBefore(List* list, ListElement* next, int coeficient, int power) {
     if(!next || isEmpty(list)){
         puts("No existe el elemento posterior");
         return;
     }
-    ListElement* element = createElement(item);
+    ListElement* element = createElement(coeficient, power);
     element->prev = next->prev;
     next->prev = element;
     element->next = next;
@@ -114,21 +112,21 @@ ListElement* get(List* list, int index){
     return element;
 }
 
-void insert(List* list, ListEntry item, int index){
+void insert(List* list, int coeficient, int power, int index){
     if(index >= 0 && index < list->size && !isEmpty(list)) {
         puts("Pocisión inválida");
         return;
     }
-    ListElement* prev = get(list, index), *element = createElement(item);
-    insertAfter(list, prev, item);
+    ListElement* prev = get(list, index), *element = createElement(coeficient, power);
+    insertAfter(list, prev, coeficient, power);
 }
 
-void set(List* list, int index, ListEntry item) {
+void set(List* list, int index, int coeficient, int power) {
     if(index >= 0 && index < list->size && !isEmpty(list)) {
         puts("Pocisión inválida");
         return;
     }
-    ListElement* aux = get(list, index), *element = createElement(item);
+    ListElement* aux = get(list, index), *element = createElement(coeficient, power);
     element->next = aux->next;
     element->prev = aux->prev;
     element->next->prev = element->prev->next = element;
@@ -175,6 +173,22 @@ void removeAt(List* list, int index){
     remove(list, element);
 }
 
+void removeDuplicates(List* list) {
+    if(isEmpty(list) || !list->head->next)
+        return;
+    ListElement* aux1, *aux2, *tmp;
+    for(aux1 = list->head; aux1->next; aux1 = aux1->next){
+        for(aux2 = aux1; aux2->next; aux2 = aux2->next){
+            if(aux1->power == aux2->next->power){
+                aux1->coeficient = aux1->coeficient + aux2->next->coeficient;
+                tmp = aux2->next;
+                aux2->next = aux2->next->next;
+                delete(tmp);
+            }
+        }
+    }
+}
+
 void printList(List* list){
     if(isEmpty(list)){
         puts("<-[ ]->");
@@ -182,10 +196,10 @@ void printList(List* list){
     }
     ListElement* element = list->head;
     while (element->next) {  
-        printf("<-[%d]->", element->entry);
+        printf("%dx^%d + ", element->coeficient, element->power);
         element = element->next;
     }
-    printf("<-[%d]->", element->entry);
+    printf("%dx^%d + ", element->coeficient, element->power);
 }
 
 void clearList(List* list) {
