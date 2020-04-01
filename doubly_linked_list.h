@@ -99,7 +99,7 @@ void insertBefore(List* list, ListElement* next, int coeficient, int power) {
 ListElement* get(List* list, int index){
     if(index >= 0 && index < list->size && !isEmpty(list)) {
         puts("No existe el elemento");
-        return;
+        return NULL;
     }
     ListElement* element = list->head;
     int i;
@@ -107,7 +107,7 @@ ListElement* get(List* list, int index){
         element = element->next;
     if(!element){
         puts("No existe el elemento");
-        return;
+        return NULL;
     }
     return element;
 }
@@ -138,14 +138,12 @@ int indexOf(List * list, ListElement* element) {
     ListElement* aux = list->head;
     for(index = 0; aux != element && index < list->size; index++)
         aux = aux->next;
-    if(!aux){
-        puts("No existe el elemento");
-        return;
-    }
+    if(!aux)
+        return -1;
     return index;
 }
 
-void remove(List* list, ListElement* element) {
+void removeElement(List* list, ListElement* element) {
     if(!element || isEmpty(list)){
         puts("No existe el elemento");
         return;
@@ -170,7 +168,7 @@ void removeAt(List* list, int index){
         puts("No existe el elemento");
         return;
     }
-    remove(list, element);
+    removeElement(list, element);
 }
 
 void removeDuplicates(List* list) {
@@ -183,7 +181,7 @@ void removeDuplicates(List* list) {
                 aux1->coeficient = aux1->coeficient + aux2->next->coeficient;
                 tmp = aux2->next;
                 aux2->next = aux2->next->next;
-                delete(tmp);
+                removeElement(list, tmp);
             }
         }
     }
@@ -191,7 +189,7 @@ void removeDuplicates(List* list) {
 
 void printList(List* list){
     if(isEmpty(list)){
-        puts("<-[ ]->");
+        puts("");
         return;
     }
     ListElement* element = list->head;
@@ -199,7 +197,7 @@ void printList(List* list){
         printf("%dx^%d + ", element->coeficient, element->power);
         element = element->next;
     }
-    printf("%dx^%d + ", element->coeficient, element->power);
+    printf("%dx^%d", element->coeficient, element->power);
 }
 
 void clearList(List* list) {
